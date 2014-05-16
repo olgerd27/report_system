@@ -6,9 +6,17 @@
 class TextParameter : public Parameter
 {
 public:
+    TextParameter(const string &str);
     ~TextParameter();
     string value();
+private:
+    string m_data;
 };
+
+TextParameter::TextParameter(const string &str)
+    : m_data(str)
+{
+}
 
 TextParameter::~TextParameter()
 {
@@ -16,7 +24,7 @@ TextParameter::~TextParameter()
 
 string TextParameter::value()
 {
-    return string("text parameter");
+    return m_data;
 }
 
 #endif

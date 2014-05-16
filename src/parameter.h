@@ -7,8 +7,8 @@ using std::string;
 class Parameter
 {
 public:
-    virtual ~Parameter() {}
-    virtual string value() = 0;
+    virtual ~Parameter() { }
+    virtual string value() const = 0;
 };
 
 #endif

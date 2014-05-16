@@ -3,20 +3,33 @@
 
 #include "parameter.h"
 
+// FuncPtrT function must return his data in string or char* format
+template<typename FuncPtrT>
 class FunctionalParameter : public Parameter
 {
 public:
+    FunctionalParameter(FuncPtrT pf);
     ~FunctionalParameter();
     string value();
+private:
+    FuncPtrT m_pFunction;
 };
 
-FunctionalParameter::~FunctionalParameter()
+template<typename FuncPtrT>
+FunctionalParameter<FuncPtrT>::FunctionalParameter(FuncPtrT pf)
+    : m_pFunction(pf)
 {
 }
 
-string FunctionalParameter::value()
+template<typename FuncPtrT>
+FunctionalParameter<FuncPtrT>::~FunctionalParameter()
 {
-    return string("functional parameter");
+}
+
+template<typename FuncPtrT>
+string FunctionalParameter<FuncPtrT>::value()
+{
+    return (*m_pFunction)();
 }
 
 #endif

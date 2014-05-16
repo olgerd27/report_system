@@ -16,9 +16,9 @@ LIBS =
 LDFLAGS = -pipe -s 
 
 SRC_OBJS = \
+	$(OBJ_DIR)/parameters_array.o \
+	$(OBJ_DIR)/report_generator.o \
 	$(OBJ_DIR)/main.o \
-  $(OBJ_DIR)/report_generator.o \
-  $(OBJ_DIR)/parameters_array.o \
 
 # Linking
 define build_target
@@ -59,8 +59,8 @@ directories:
 #	-@mkdir -p "$(OUTPUT_DIR)"
 #	-@mkdir -p "$(OBJ_DIR)"
 
-$(OBJ_DIR)/main.o: main.cpp \
-report_generator.h \
+
+$(OBJ_DIR)/parameters_array.o: parameters_array.cpp \
 parameters_array.h \
 parameter.h \
 text_parameter.h \
@@ -75,7 +75,8 @@ text_parameter.h \
 functional_parameter.h
 	$(compile_source)
 
-$(OBJ_DIR)/parameters_array.o: parameters_array.cpp \
+$(OBJ_DIR)/main.o: main.cpp \
+report_generator.h \
 parameters_array.h \
 parameter.h \
 text_parameter.h \
