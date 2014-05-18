@@ -8,7 +8,7 @@ class Parameter
 {
 public:
     virtual ~Parameter() { }
-    virtual string value() const = 0;
+    virtual string value() = 0;
 };
 
 #endif

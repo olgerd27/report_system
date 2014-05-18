@@ -10,7 +10,10 @@ struct ClearMemoryFromMapValue
     template<typename T>
     void operator()(const T &v)
     {
-        std::cout << "clearing data from address = " << v.second << std::endl;
+    /*
+        std::cout << "clearing data = [" << v.first << "; " << v.second->value() << "], "
+                  << "from address = " << v.second << std::endl;
+    */
         delete v.second;
     }
 };
@@ -33,5 +36,5 @@ bool ParametersArray::addParameter(const string &name, Parameter *value)
 string ParametersArray::parameterValue(const string &parameterName) const
 {
     typeParams::const_iterator it = m_params.find(parameterName);
-    return (it != m_params.end()) ? it->second->value() : string("\n");
+    return (it != m_params.end()) ? it->second->value() : string("\n"); // maybe if go to "else", return empty string instance
 }

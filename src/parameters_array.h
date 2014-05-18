@@ -8,11 +8,11 @@ using std::string;
 
 class Parameter;
 
-typedef map<string, Parameter *> typeParams;
-
 class ParametersArray
 {
 public:
+    typedef map<string, Parameter *> typeParams;
+
     ParametersArray();
     ~ParametersArray();
     bool addParameter(const string &name, Parameter *value);
