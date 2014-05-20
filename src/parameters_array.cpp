@@ -33,8 +33,11 @@ bool ParametersArray::addParameter(const string &name, Parameter *value)
     return ret.second;
 }
 
+/***
+* Get a parameter value by its name. If name was not found, return empty string instance
+*/
 string ParametersArray::parameterValue(const string &parameterName) const
 {
     typeParams::const_iterator it = m_params.find(parameterName);
-    return (it != m_params.end()) ? it->second->value() : string("\n"); // maybe if go to "else", return empty string instance
+    return (it != m_params.end()) ? it->second->value() : string();
 }

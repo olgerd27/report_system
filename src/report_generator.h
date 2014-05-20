@@ -21,6 +21,11 @@ private:
 
     void readReportTemplate();
     void insertParameters();
+    void findAndInsertRequiredParameters(const string &markerLeft, const string &markerRight);
+    void findAndInsertNotRequiredParameters(const string &markerLeft, const string &markerRight);
+    bool findParameter(const string &markerLeft, const string &markerRight, 
+                       string::size_type &posStartPar, string::size_type &posStartWord,
+                       string::size_type &posEndPar) const;
     
     void outReadyReport();
 

@@ -21,7 +21,10 @@ string currentData()
 }
 typedef string (*pf)();
 
-// ReportGenerator methods
+
+/***
+* ReportGenerator methods
+*/
 ReportGenerator::ReportGenerator()
 {
     m_paramsArr = new ParametersArray;
@@ -75,7 +78,6 @@ void ReportGenerator::addTextParameters()
         if( !m_paramsArr->addParameter(name, new TextParameter(value)) )
             throw runtime_error(string("Cannot add the text parameter with name: \"") + name + "\"");
     }
-    
     in.close();
 }
 
@@ -88,11 +90,66 @@ void ReportGenerator::readReportTemplate()
     in.close();
 }
 
+/***
+* Main calculations
+*/
 void ReportGenerator::insertParameters()
 {
-    
+    findAndInsertRequiredParameters("{*", "}");
+    findAndInsertNotRequiredParameters("{", "}");
+    /**********
+    Method insertRequiredParameters() is almost identical with method insertNotRequiredParameters().
+    Difference between this methods is only behaviour of application when none parameters was found.
+    It is necessary to think how to simplify this code and maybe use one method findAndInsertParameters() with different arguments.
+    */
 }
+
+void ReportGenerator::findAndInsertRequiredParameters(const string &markerLeft, const string &markerRight)
+{
+    string parName, parValue;
+    string::size_type posStartPar = 0, posStartWord = 0, posEndPar = 0;
     
+    // find and replace required parameters
+    while( findParameter(markerLeft, markerRight, posStartPar, posStartWord, posEndPar) ) {
+        parName = m_report.substr(posStartWord, posEndPar - posStartWord);
+        parValue = m_paramsArr->parameterValue(parName);
+        if(parValue.empty())
+            throw runtime_error(string("Textual parameter \"") + parName + "\" was not found in the ini-file");
+        m_report.replace(posStartPar, posEndPar - posStartPar + 1, parValue);
+    }
+}
+
+
+void ReportGenerator::findAndInsertNotRequiredParameters(const string &markerLeft, const string &markerRight)
+{
+    string parName, parValue;
+    string::size_type posStartPar = 0, posStartWord = 0, posEndPar = 0;
+    
+    // find and replace not required parameters
+    posStartPar = 0, posStartWord = 0, posEndPar = 0;
+    while( findParameter(markerLeft, markerRight, posStartPar, posStartWord, posEndPar) ) {
+        parName = m_report.substr(posStartWord, posEndPar - posStartWord);
+        parValue = m_paramsArr->parameterValue(parName);
+        if(parValue.empty())
+            parValue = '\n';
+        m_report.replace(posStartPar, posEndPar - posStartPar + 1, parValue);
+    }
+}
+
+bool ReportGenerator::findParameter(const string &markerLeft, const string &markerRight, 
+                                    string::size_type &posStartPar, string::size_type &posStartWord,
+                                    string::size_type &posEndPar) const
+{
+    posStartPar = m_report.find(markerLeft, posEndPar);
+    if(posStartPar == string::npos) return false; // parameter not found
+    posStartWord = posStartPar + markerLeft.size();
+    posEndPar = m_report.find(markerRight, posStartWord);
+    return true;
+}
+
+/***
+* Out results to ready report file
+*/
 void ReportGenerator::outReadyReport()
 {
     ofstream out("../data/out/report.txt"); // open file to out data with prevoius truncate its contents
