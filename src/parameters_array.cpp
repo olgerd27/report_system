@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <iostream> // temp
 #include "parameters_array.h"
 #include "parameter.h"
 //#include "parameters_array_impl.h"
@@ -10,10 +9,6 @@ struct ClearMemoryFromMapValue
     template<typename T>
     void operator()(const T &v)
     {
-    /*
-        std::cout << "clearing data = [" << v.first << "; " << v.second->value() << "], "
-                  << "from address = " << v.second << std::endl;
-    */
         delete v.second;
     }
 };
