@@ -55,7 +55,7 @@ void ReportGenerator::run()
 void ReportGenerator::addFunctionalParameters()
 {
     if( !m_paramsArr->addParameter("current_date", new FunctionalParameter<pf>(currentData)) )
-        throw runtime_error("Cannot add functional parameter");
+        throw runtime_error("Cannot add a functional parameter. There are unknown reason.");
 }
 
 /***
@@ -66,7 +66,7 @@ void ReportGenerator::addTextParameters()
     ifstream in("../data/in/parameters.ini");
     if( !in.is_open() )
         throw runtime_error("Cannot open the ini-file with text parameters");
-    
+
     unsigned pos;
     string strLine, name, value;
     while(in >> strLine) {
@@ -76,7 +76,7 @@ void ReportGenerator::addTextParameters()
         name = strLine.substr(0, pos);
         value = strLine.substr(pos + 1, strLine.size());
         if( !m_paramsArr->addParameter(name, new TextParameter(value)) )
-            throw runtime_error(string("Cannot add the text parameter with name: \"") + name + "\"");
+            throw runtime_error(string("Cannot add the text parameter \"") + name + "\" from a ini-file. Maybe this parameter was already added.");
     }
     in.close();
 }
@@ -93,18 +93,45 @@ void ReportGenerator::readReportTemplate()
 /***
 * Main calculations
 */
+
+/***
+* ParameterNotFoundBhvr class and its inheritances, needed for modeling behaviour when any type of parameters not found
+*/
+struct ParameterNotFoundBhvr
+{
+    virtual ~ParameterNotFoundBhvr() { }
+    virtual void processError(const string &paramName, string &paramValue) const = 0;
+};
+
+struct RequiredParameterNotFoundBhvr : public ParameterNotFoundBhvr
+{
+    ~RequiredParameterNotFoundBhvr() { }
+    void processError(const string &paramName, string &paramValue) const
+    {
+        throw runtime_error(string("Required parameter \"") + paramName + "\" was not found in the ini-file");
+    }
+};
+
+struct NotRequiredParameterNotFoundBhvr : public ParameterNotFoundBhvr
+{
+    ~NotRequiredParameterNotFoundBhvr() { }
+    void processError(const string &paramName, string &paramValue) const
+    {
+        paramValue = '\n';
+    }
+};
+
+
 void ReportGenerator::insertParameters()
 {
-    findAndInsertRequiredParameters("{*", "}");
-    findAndInsertNotRequiredParameters("{", "}");
-    /**********
-    Method insertRequiredParameters() is almost identical with method insertNotRequiredParameters().
-    Difference between this methods is only behaviour of application when none parameters was found.
-    It is necessary to think how to simplify this code and maybe use one method findAndInsertParameters() with different arguments.
-    */
+    RequiredParameterNotFoundBhvr reqBhvr;
+    findAndInsertParameters("{*", "}", reqBhvr);
+    
+    NotRequiredParameterNotFoundBhvr notReqBhvr;
+    findAndInsertParameters("{", "}", notReqBhvr);
 }
 
-void ReportGenerator::findAndInsertRequiredParameters(const string &markerLeft, const string &markerRight)
+void ReportGenerator::findAndInsertParameters(const string &markerLeft, const string &markerRight, ParameterNotFoundBhvr &bhvr)
 {
     string parName, parValue;
     string::size_type posStartPar = 0, posStartWord = 0, posEndPar = 0;
@@ -114,24 +141,7 @@ void ReportGenerator::findAndInsertRequiredParameters(const string &markerLeft, 
         parName = m_report.substr(posStartWord, posEndPar - posStartWord);
         parValue = m_paramsArr->parameterValue(parName);
         if(parValue.empty())
-            throw runtime_error(string("Textual parameter \"") + parName + "\" was not found in the ini-file");
-        m_report.replace(posStartPar, posEndPar - posStartPar + 1, parValue);
-    }
-}
-
-
-void ReportGenerator::findAndInsertNotRequiredParameters(const string &markerLeft, const string &markerRight)
-{
-    string parName, parValue;
-    string::size_type posStartPar = 0, posStartWord = 0, posEndPar = 0;
-    
-    // find and replace not required parameters
-    posStartPar = 0, posStartWord = 0, posEndPar = 0;
-    while( findParameter(markerLeft, markerRight, posStartPar, posStartWord, posEndPar) ) {
-        parName = m_report.substr(posStartWord, posEndPar - posStartWord);
-        parValue = m_paramsArr->parameterValue(parName);
-        if(parValue.empty())
-            parValue = '\n';
+            bhvr.processError(parName, parValue);
         m_report.replace(posStartPar, posEndPar - posStartPar + 1, parValue);
     }
 }

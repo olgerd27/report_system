@@ -16,6 +16,7 @@ LIBS =
 LDFLAGS = -pipe -s 
 
 SRC_OBJS = \
+	$(OBJ_DIR)/logger.o \
 	$(OBJ_DIR)/parameters_array.o \
 	$(OBJ_DIR)/report_generator.o \
 	$(OBJ_DIR)/main.o \
@@ -59,6 +60,10 @@ directories:
 #	-@mkdir -p "$(OUTPUT_DIR)"
 #	-@mkdir -p "$(OBJ_DIR)"
 
+
+$(OBJ_DIR)/logger.o: logger.cpp \
+logger.h
+	$(compile_source)
 
 $(OBJ_DIR)/parameters_array.o: parameters_array.cpp \
 parameters_array.h \

@@ -1,11 +1,11 @@
 #ifndef _REPORT_GENERATOR_H_
 #define _REPORT_GENERATOR_H_
 
-
 #include <string>
 using std::string;
 
 class ParametersArray;
+class ParameterNotFoundBhvr;
 
 class ReportGenerator
 {
@@ -21,8 +21,7 @@ private:
 
     void readReportTemplate();
     void insertParameters();
-    void findAndInsertRequiredParameters(const string &markerLeft, const string &markerRight);
-    void findAndInsertNotRequiredParameters(const string &markerLeft, const string &markerRight);
+    void findAndInsertParameters(const string &markerLeft, const string &markerRight, ParameterNotFoundBhvr &bhvr);
     bool findParameter(const string &markerLeft, const string &markerRight, 
                        string::size_type &posStartPar, string::size_type &posStartWord,
                        string::size_type &posEndPar) const;
