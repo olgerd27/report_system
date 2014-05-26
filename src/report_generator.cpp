@@ -133,27 +133,36 @@ void ReportGenerator::insertParameters()
 void ReportGenerator::findAndInsertParameters(const string &markerLeft, const string &markerRight, ParameterNotFoundBhvr &bhvr)
 {
     string parName, parValue;
-    string::size_type posStartPar = 0, posStartWord = 0, posEndPar = 0;
+    typePos posLeftPar = 0, posLeftWord = 0, posRightPar = 0;
     
     // find and replace required parameters
-    while( findParameter(markerLeft, markerRight, posStartPar, posStartWord, posEndPar) ) {
-        parName = m_report.substr(posStartWord, posEndPar - posStartWord);
+    while( findParameter(markerLeft, markerRight, posLeftPar, posRightPar) ) {
+        checkMarkerLeftInParameter(posLeftPar, posRightPar, markerLeft);
+        posLeftWord = posLeftPar + markerLeft.size();
+        parName = m_report.substr(posLeftWord, posRightPar - posLeftWord);
         parValue = m_paramsArr->parameterValue(parName);
         if(parValue.empty())
             bhvr.processError(parName, parValue);
-        m_report.replace(posStartPar, posEndPar - posStartPar + 1, parValue);
+        m_report.replace(posLeftPar, posRightPar - posLeftPar + 1, parValue);
     }
 }
 
 bool ReportGenerator::findParameter(const string &markerLeft, const string &markerRight, 
-                                    string::size_type &posStartPar, string::size_type &posStartWord,
-                                    string::size_type &posEndPar) const
+                                    typePos &posLeft, typePos &posRight) const
 {
-    posStartPar = m_report.find(markerLeft, posEndPar);
-    if(posStartPar == string::npos) return false; // parameter not found
-    posStartWord = posStartPar + markerLeft.size();
-    posEndPar = m_report.find(markerRight, posStartWord);
+    posLeft = m_report.find(markerLeft, posRight);
+    if(posLeft == string::npos) return false; // parameter not found
+    posRight = m_report.find(markerRight, posLeft);
+    if(posRight == string::npos) return false; // parameter closed brace not found
     return true;
+}
+
+void ReportGenerator::checkMarkerLeftInParameter(typePos &posLeft, typePos posRight, const string &markerLeft) const
+{
+    // check, maybe markerLeft located between posLeftPar and posRightPar
+    typePos posLeftTemp = m_report.find(markerLeft, posLeft + 1);
+    if(posLeftTemp < posRight)
+        posLeft = posLeftTemp;
 }
 
 /***

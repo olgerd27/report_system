@@ -15,16 +15,16 @@ public:
     void run();
 
 private:
-    void addFunctionalParameters();
+    typedef string::size_type typePos;
 
+    void addFunctionalParameters();
     void addTextParameters();
 
     void readReportTemplate();
     void insertParameters();
     void findAndInsertParameters(const string &markerLeft, const string &markerRight, ParameterNotFoundBhvr &bhvr);
-    bool findParameter(const string &markerLeft, const string &markerRight, 
-                       string::size_type &posStartPar, string::size_type &posStartWord,
-                       string::size_type &posEndPar) const;
+    bool findParameter(const string &markerLeft, const string &markerRight, typePos &posLeft, typePos &posRight) const;
+    void checkMarkerLeftInParameter(typePos &posLeft, typePos posRight, const string &markerLeft) const;
     
     void outReadyReport();
 
